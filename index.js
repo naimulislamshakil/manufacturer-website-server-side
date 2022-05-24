@@ -40,7 +40,7 @@ async function run() {
       res.send(result);
     });
 
-    // specifige search by id
+    // specific search by id
     app.get("/id_product/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -60,6 +60,15 @@ async function run() {
       const email = req.params.email;
       const query = { email: email };
       const result = await orderCollaction.find(query).toArray();
+      res.send(result);
+    });
+
+    // get specific order details on mongodb
+    app.get("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollaction.findOne(query);
       res.send(result);
     });
   } finally {
