@@ -54,6 +54,14 @@ async function run() {
       const result = await orderCollaction.insertOne(orderDetails);
       res.send(result);
     });
+
+    // get order on mongodb
+    app.get("/order/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await orderCollaction.find(query).toArray();
+      res.send(result);
+    });
   } finally {
     // await client.close()
   }
