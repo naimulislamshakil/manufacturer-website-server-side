@@ -34,6 +34,11 @@ async function run() {
     // order collaction
     const orderCollaction = client.db("laptop_manufaction").collection("order");
 
+    // review collaction
+    const reviewCollaction = client
+      .db("laptop_manufaction")
+      .collection("review");
+
     // get all product api
     app.get("/product", async (req, res) => {
       const result = await productCollaction.find().toArray();
@@ -69,6 +74,13 @@ async function run() {
       console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await orderCollaction.findOne(query);
+      res.send(result);
+    });
+
+    // post review on mongodb
+    app.post("/review", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollaction.insertOne(review);
       res.send(result);
     });
   } finally {
