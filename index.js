@@ -21,18 +21,37 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-console.log("db connect");
 
 async function run() {
   try {
     await client.connect();
 
+    // product collaction
     const productCollaction = client
       .db("laptop_manufaction")
       .collection("product");
 
+    // order collaction
+    const orderCollaction = client.db("laptop_manufaction").collection("order");
+
+    // get all product api
     app.get("/product", async (req, res) => {
       const result = await productCollaction.find().toArray();
+      res.send(result);
+    });
+
+    // specifige search by id
+    app.get("/id_product/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await productCollaction.findOne(query);
+      res.send(result);
+    });
+
+    // post order on mongodb
+    app.post("/order", async (req, res) => {
+      const orderDetails = req.body;
+      const result = await orderCollaction.insertOne(orderDetails);
       res.send(result);
     });
   } finally {
