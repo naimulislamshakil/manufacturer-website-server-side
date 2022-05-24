@@ -83,6 +83,12 @@ async function run() {
       const result = await reviewCollaction.insertOne(review);
       res.send(result);
     });
+
+    // get review on mongodb
+    app.get("/review", async (req, res) => {
+      const result = await reviewCollaction.find().toArray();
+      res.send(result)
+    })
   } finally {
     // await client.close()
   }
