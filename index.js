@@ -13,11 +13,11 @@ app.use(express.json());
 
 // verify jwt token client
 const jwtVerify = (req, res, next) => {
-  const authorization = req.headers.authorization;
-  if (!authorization) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
     res.status(401).send({ massage: "UnAuthorized access" });
   }
-  const token = authorization.split(" ")[1];
+  const token = authHeader.split(" ")[1];
   jwt.verify(token, process.env.TOKEN_ACCESS_KEY, function (err, decoded) {
     if (err) {
       return res.status(403).send({ massage: "Forbidden Access" });
@@ -56,7 +56,7 @@ async function run() {
     const userCollaction = client.db("laptop_manufaction").collection("user");
 
     // get all product api
-    app.get("/product", jwtVerify, async (req, res) => {
+    app.get("/product", async (req, res) => {
       const result = await productCollaction.find().toArray();
       res.send(result);
     });
@@ -95,7 +95,6 @@ async function run() {
     // delete order details on mongodb
     app.delete("/delete/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const quary = { _id: ObjectId(id) };
       const result = await orderCollaction.deleteOne(quary);
       res.send(result);
@@ -125,7 +124,7 @@ async function run() {
       const option = { upsert: true };
       const result = await userCollaction.updateOne(quary, doc, option);
       const token = jwt.sign({ email: email }, process.env.TOKEN_ACCESS_KEY, {
-        expiresIn: "1h",
+        expiresIn: "30d",
       });
       res.send({ result, token });
     });
@@ -155,7 +154,28 @@ async function run() {
       const result = await userCollaction.updateOne(query, doc, option);
       res.send(result);
 
-      delete admin or 
+      // delete admin or user on mongodb
+      app.delete("/user_admin/:id", async (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const quary = { _id: ObjectId(id) };
+        const result = await userCollaction.deleteOne(quary);
+        res.send(result);
+      });
+    });
+
+    // update user
+    app.put("/onlyuser/:email", jwtVerify, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const user = req.body;
+      const option = { upsert: true };
+      const doc = {
+        $set: user,
+      };
+
+      const result = await userCollaction.updateOne(filter, doc, option);
+      res.send(result);
     });
   } finally {
     // await client.close()
