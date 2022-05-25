@@ -143,6 +143,20 @@ async function run() {
       const result = await userCollaction.find().toArray();
       res.send(result);
     });
+
+    // make user to admin
+    app.put("/user_admin/:email", jwtVerify, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const option = { upsert: true };
+      const doc = {
+        $set: { role: "admin" },
+      };
+      const result = await userCollaction.updateOne(query, doc, option);
+      res.send(result);
+
+      delete admin or 
+    });
   } finally {
     // await client.close()
   }
