@@ -137,6 +137,12 @@ async function run() {
       const admin = user.role === "admin";
       res.send({ admin: admin });
     });
+
+    // all user show for admin
+    app.get("/admin", jwtVerify, async (req, res) => {
+      const result = await userCollaction.find().toArray();
+      res.send(result);
+    });
   } finally {
     // await client.close()
   }
