@@ -111,7 +111,10 @@ async function run() {
       };
       const option = { upsert: true };
       const result = await userCollaction.updateOne(quary, doc, option);
-      res.send(result);
+      const token = jwt.sign({ email: email }, process.env.TOKEN_ACCESS_KEY, {
+        expiresIn: "1h",
+      });
+      res.send({ result, token });
     });
   } finally {
     // await client.close()
