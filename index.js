@@ -11,8 +11,21 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-//
-// laptop_manu
+// verify jwt token client
+const jwtVerify = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    res.status(401).send({ massage: "UnAuthorized access" });
+  }
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, process.env.TOKEN_ACCESS_KEY, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ massage: "Forbidden Access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
 
 const uri = `mongodb+srv://${process.env.DB_ACCESS_USERNAME}:${process.env.DB_ACCESS_PASS}@cluster0.z5hwi.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -43,13 +56,13 @@ async function run() {
     const userCollaction = client.db("laptop_manufaction").collection("user");
 
     // get all product api
-    app.get("/product", async (req, res) => {
+    app.get("/product", jwtVerify, async (req, res) => {
       const result = await productCollaction.find().toArray();
       res.send(result);
     });
 
     // specific search by id
-    app.get("/id_product/:id", async (req, res) => {
+    app.get("/id_product/:id", jwtVerify, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await productCollaction.findOne(query);
@@ -115,6 +128,14 @@ async function run() {
         expiresIn: "1h",
       });
       res.send({ result, token });
+    });
+
+    // make sure user is admin
+    app.get("/admin/:email", jwtVerify, async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollaction.findOne({ email: email });
+      const admin = user.role === "admin";
+      res.send({ admin: admin });
     });
   } finally {
     // await client.close()
