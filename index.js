@@ -39,6 +39,9 @@ async function run() {
       .db("laptop_manufaction")
       .collection("review");
 
+    // user collaction
+    const userCollaction = client.db("laptop_manufaction").collection("user");
+
     // get all product api
     app.get("/product", async (req, res) => {
       const result = await productCollaction.find().toArray();
@@ -71,9 +74,17 @@ async function run() {
     // get specific order details on mongodb
     app.get("/orders/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await orderCollaction.findOne(query);
+      res.send(result);
+    });
+
+    // delete order details on mongodb
+    app.delete("/delete/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const quary = { _id: ObjectId(id) };
+      const result = await orderCollaction.deleteOne(quary);
       res.send(result);
     });
 
@@ -87,8 +98,21 @@ async function run() {
     // get review on mongodb
     app.get("/review", async (req, res) => {
       const result = await reviewCollaction.find().toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
+
+    // put user on mongoodb
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const quary = { email: email };
+      const doc = {
+        $set: user,
+      };
+      const option = { upsert: true };
+      const result = await userCollaction.updateOne(quary, doc, option);
+      res.send(result);
+    });
   } finally {
     // await client.close()
   }
