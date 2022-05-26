@@ -70,6 +70,12 @@ async function run() {
 
     // get all product api
     app.get("/product", async (req, res) => {
+      const result = await productCollaction.find().limit(6).toArray();
+      res.send(result);
+    });
+
+    // get all product api
+    app.get("/product", async (req, res) => {
       const result = await productCollaction.find().toArray();
       res.send(result);
     });
