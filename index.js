@@ -245,6 +245,19 @@ async function run() {
       const result = await productCollaction.insertOne(product);
       res.send(result);
     });
+
+    // admin product delete
+    app.delete(
+      "/adminproductdelete/:id",
+      jwtVerify,
+      verifyAdmin,
+      async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await productCollaction.deleteOne(query);
+        res.send(result);
+      }
+    );
   } finally {
     // await client.close()
   }
