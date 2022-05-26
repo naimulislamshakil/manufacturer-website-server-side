@@ -232,6 +232,13 @@ async function run() {
       const result = await orderCollaction.updateOne(query, doc, option);
       res.send(result);
     });
+
+    // admin add product
+    app.post("/product", jwtVerify, verifyAdmin, async (req, res) => {
+      const product = req.body;
+      const result = await productCollaction.insertOne(product);
+      res.send(result);
+    });
   } finally {
     // await client.close()
   }
