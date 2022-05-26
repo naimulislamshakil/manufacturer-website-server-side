@@ -75,7 +75,7 @@ async function run() {
     });
 
     // get all product api
-    app.get("/product", async (req, res) => {
+    app.get("/products", async (req, res) => {
       const result = await productCollaction.find().toArray();
       res.send(result);
     });
