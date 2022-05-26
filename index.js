@@ -200,8 +200,16 @@ async function run() {
     });
 
     // get all order by admin
-    app.get("order", jwtVerify, verifyAdmin, async (req, res) => {
+    app.get("/order", jwtVerify, verifyAdmin, async (req, res) => {
       const result = await orderCollaction.find().toArray();
+      res.send(result);
+    });
+
+    // manage all order details by id
+    app.get("/manage/:id", jwtVerify, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollaction.findOne(query);
       res.send(result);
     });
   } finally {
