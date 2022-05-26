@@ -55,6 +55,19 @@ async function run() {
     // user collaction
     const userCollaction = client.db("laptop_manufaction").collection("user");
 
+    // varify admin
+    const verifyAdmin = async (req, res, next) => {
+      const requester = req.decoded.email;
+      const requesterAccount = await userCollaction.findOne({
+        email: requester,
+      });
+      if (requesterAccount.role === "admin") {
+        next();
+      } else {
+        res.status(403).send({ message: "forbidden" });
+      }
+    };
+
     // get all product api
     app.get("/product", async (req, res) => {
       const result = await productCollaction.find().toArray();
@@ -138,13 +151,13 @@ async function run() {
     });
 
     // all user show for admin
-    app.get("/admin", jwtVerify, async (req, res) => {
+    app.get("/admin", jwtVerify, verifyAdmin, async (req, res) => {
       const result = await userCollaction.find().toArray();
       res.send(result);
     });
 
     // make user to admin
-    app.put("/user_admin/:email", jwtVerify, async (req, res) => {
+    app.put("/user_admin/:email", jwtVerify, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const option = { upsert: true };
@@ -155,7 +168,7 @@ async function run() {
       res.send(result);
 
       // delete admin or user on mongodb
-      app.delete("/user_admin/:id", async (req, res) => {
+      app.delete("/onlyuser/:id", jwtVerify, verifyAdmin, async (req, res) => {
         const id = req.params.id;
         console.log(id);
         const quary = { _id: ObjectId(id) };
@@ -175,6 +188,20 @@ async function run() {
       };
 
       const result = await userCollaction.updateOne(filter, doc, option);
+      res.send(result);
+    });
+
+    // specific user search by email
+    app.get("/onlyuser/:email", jwtVerify, async (req, res) => {
+      const email = req.params.email;
+      const quary = { email: email };
+      const result = await userCollaction.findOne(quary);
+      res.send(result);
+    });
+
+    // get all order by admin
+    app.get("order", jwtVerify, verifyAdmin, async (req, res) => {
+      const result = await orderCollaction.find().toArray();
       res.send(result);
     });
   } finally {
