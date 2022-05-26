@@ -212,6 +212,26 @@ async function run() {
       const result = await orderCollaction.findOne(query);
       res.send(result);
     });
+
+    // admin delete a order by id
+    app.delete("/manage/:id", jwtVerify, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollaction.deleteOne(query);
+      res.send(result);
+    });
+
+    // order complet to panding
+    app.put("/manage/:id", jwtVerify, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const doc = {
+        $set: { panding: "complete" },
+      };
+      const option = { upsert: true };
+      const result = await orderCollaction.updateOne(query, doc, option);
+      res.send(result);
+    });
   } finally {
     // await client.close()
   }
