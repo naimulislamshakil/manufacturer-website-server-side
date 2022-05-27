@@ -260,12 +260,12 @@ async function run() {
     );
 
     // get specifie order details
-    app.get("/payment/:id", jwtVerify, async(req, res => {
+    app.get("/payment/:id", jwtVerify, async (req, res) => {
       const id = req.params.id;
       const quary = { _id: ObjectId(id) };
       const result = await orderCollaction.findOne(quary);
       res.send(result);
-    }))
+    });
   } finally {
     // await client.close()
   }
