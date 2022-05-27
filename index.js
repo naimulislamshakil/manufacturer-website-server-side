@@ -258,7 +258,7 @@ async function run() {
         res.send(result);
       }
     );
-
+    // add admin
     // get specifie order details
     app.get("/payment/:id", jwtVerify, async (req, res) => {
       const id = req.params.id;
